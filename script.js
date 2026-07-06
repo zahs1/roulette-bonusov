@@ -14,6 +14,9 @@ let isSpinning = false;
 let editingId = null;
 let selectedIcon = null;
 let confettiFrame = null;
+let bulbRadius = 0;
+let bulbElements = [];
+let prevFocus = null;
 
 function loadBonuses() {
   try {
@@ -73,19 +76,32 @@ function renderWheel() {
   }
   document.querySelector('.wheel-container').classList.toggle('wheel-container--dense', n >= 12);
   lucide.createIcons();
+  repositionBulbs();
   updateSpinButton();
 }
 
 function initBulbs() {
   const container = document.getElementById('bulbContainer');
-  const radius = container.getBoundingClientRect().width / 2 + 2;
+  bulbRadius = container.getBoundingClientRect().width / 2 + 2;
   for (let i = 0; i < NUM_BULBS; i++) {
     const bulb = document.createElement('div');
     bulb.className = 'wheel-bulb';
-    bulb.style.transform = `rotate(${i/NUM_BULBS*360-90}deg) translateX(${radius}px)`;
+    bulb.style.transform = `rotate(${i/NUM_BULBS*360-90}deg) translateX(${bulbRadius}px)`;
     bulb.style.animationDelay = `${i*0.08}s`;
     container.appendChild(bulb);
+    bulbElements.push(bulb);
   }
+}
+
+function repositionBulbs() {
+  const container = document.getElementById('bulbContainer');
+  if (!container) return;
+  const newRadius = container.getBoundingClientRect().width / 2 + 2;
+  if (newRadius === bulbRadius) return;
+  bulbRadius = newRadius;
+  bulbElements.forEach((bulb, i) => {
+    bulb.style.transform = `rotate(${i/NUM_BULBS*360-90}deg) translateX(${bulbRadius}px)`;
+  });
 }
 
 function spin() {
@@ -193,10 +209,12 @@ function renderList() {
     actions.className = 'bonus-item-actions';
     const ed = document.createElement('button');
     ed.className = 'bonus-item-btn';
+    ed.setAttribute('aria-label', 'Редактировать');
     ed.innerHTML = '<i data-lucide="pencil" width="14" height="14"></i>';
     ed.addEventListener('click', () => openModal(b.id));
     const del = document.createElement('button');
     del.className = 'bonus-item-btn bonus-item-btn--danger';
+    del.setAttribute('aria-label', 'Удалить');
     del.innerHTML = '<i data-lucide="trash-2" width="14" height="14"></i>';
     del.addEventListener('click', () => deleteBonus(b.id));
     actions.append(ed, del);
@@ -227,11 +245,22 @@ function editBonus(id, name, icon) { saveBonus(id, name, icon) }
 
 function deleteBonus(id) {
   if (isSpinning) return;
-  if (!confirm('Удалить этот бонус?')) return;
+  document.getElementById('confirmOverlay').hidden = false;
+  document.getElementById('confirmOverlay').dataset.bonusId = id;
+}
+
+function confirmDelete() {
+  const id = document.getElementById('confirmOverlay').dataset.bonusId;
+  if (!id) return;
   bonuses = bonuses.filter(b => b.id !== id);
   save();
   renderWheel();
   renderList();
+  closeConfirm();
+}
+
+function closeConfirm() {
+  document.getElementById('confirmOverlay').hidden = true;
 }
 
 function updateSpinButton() {
@@ -258,6 +287,7 @@ function openModal(id) {
     selectedIcon = ICONS[0];
   }
   renderIconGrid();
+  prevFocus = document.activeElement;
   document.getElementById('modalOverlay').hidden = false;
   input.focus();
   input.setSelectionRange(input.value.length, input.value.length);
@@ -265,6 +295,8 @@ function openModal(id) {
 }
 function closeModal() {
   document.getElementById('modalOverlay').hidden = true;
+  if (prevFocus && prevFocus.focus) prevFocus.focus();
+  prevFocus = null;
   editingId = null;
   selectedIcon = null;
 }
@@ -295,6 +327,15 @@ function saveFromModal() {
   closeModal();
 }
 
+window.addEventListener('error', function(e) {
+  if (e.target.tagName === 'SCRIPT' && e.target.src && e.target.src.includes('lucide')) {
+    console.warn('lucide CDN failed to load. Icons will not be displayed.');
+    document.querySelectorAll('[data-lucide]').forEach(el => {
+      el.style.display = 'none';
+    });
+  }
+}, true);
+
 document.addEventListener('DOMContentLoaded', () => {
   loadBonuses();
   initBulbs();
@@ -313,8 +354,15 @@ document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('modalName').addEventListener('keydown', e => { if (e.key==='Enter') saveFromModal() });
   document.getElementById('modalName').addEventListener('input', updateSaveButton);
   document.getElementById('modalOverlay').addEventListener('click', function(e) { if (e.target===this) closeModal() });
+  document.getElementById('confirmYes').addEventListener('click', confirmDelete);
+  document.getElementById('confirmNo').addEventListener('click', closeConfirm);
+  document.getElementById('confirmOverlay').addEventListener('click', function(e) { if (e.target === this) closeConfirm() });
+  let resizeTimeout;
   window.addEventListener('resize', () => {
-    if (!document.getElementById('resultOverlay').hidden) { stopConfetti(); fireConfetti() }
-    if (!isSpinning) { renderWheel(); renderList() }
+    cancelAnimationFrame(resizeTimeout);
+    resizeTimeout = requestAnimationFrame(() => {
+      if (!document.getElementById('resultOverlay').hidden) { stopConfetti(); fireConfetti() }
+      if (!isSpinning) { renderWheel(); renderList() }
+    });
   });
 });

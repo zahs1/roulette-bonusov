@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://zahs1.github.io/roulette-bonusov/sitemap.xml

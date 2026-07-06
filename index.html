@@ -4,12 +4,23 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Рулетка бонусов</title>
-  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg'/%3E" />
+  <meta name="description" content="Призовое колесо для розыгрыша бонусов — добавляйте бонусы и крутите колесо!" />
+  <meta property="og:title" content="Рулетка бонусов" />
+  <meta property="og:description" content="Призовое колесо для розыгрыша бонусов — добавляйте бонусы и крутите колесо!" />
+  <meta property="og:image" content="https://zahs1.github.io/roulette-bonusov/og-image.svg" />
+  <meta property="og:url" content="https://zahs1.github.io/roulette-bonusov/" />
+  <meta property="og:type" content="website" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Рулетка бонусов" />
+  <meta name="twitter:description" content="Призовое колесо для розыгрыша бонусов — добавляйте бонусы и крутите колесо!" />
+  <link rel="icon" href="favicon.svg" type="image/svg+xml" />
+  <link rel="manifest" href="manifest.json" />
   <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://unpkg.com; style-src 'self' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data:; connect-src 'none'; form-action 'none'; base-uri 'self'" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Familjen+Grotesk:wght@400;500;600;700&family=Unbounded:wght@600;700;800;900&display=swap" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Familjen+Grotesk:wght@400;500;600;700&family=Unbounded:wght@600;700;800;900&display=swap" rel="stylesheet" />
-  <script src="https://unpkg.com/lucide@1.23.0/dist/umd/lucide.min.js" integrity="sha384-ouAVEJVCMsf8Svzn+BwqbaBhxBEA0xgeVBhHnxmWd+Wqyv18yhWCQwGegFD/OHLq" crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/lucide@1.23.0/dist/umd/lucide.min.js" integrity="sha384-ouAVEJVCMsf8Svzn+BwqbaBhxBEA0xgeVBhHnxmWd+Wqyv18yhWCQwGegFD/OHLq" crossorigin="anonymous" defer></script>
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
@@ -30,7 +41,7 @@
           <div class="wheel-shine" aria-hidden="true"></div>
           <div class="wheel-center" aria-hidden="true"></div>
         </div>
-        <button class="spin-btn" id="spinBtn">Крутить</button>
+        <button class="spin-btn" id="spinBtn" aria-label="Крутить колесо">Крутить</button>
       </div>
     </main>
     <aside class="rail" id="rail">
@@ -53,7 +64,7 @@
       <div class="result-medal" id="resultMedal">
         <i data-lucide="gift" width="48" height="48" id="resultIcon"></i>
       </div>
-      <p class="result-name" id="resultName"></p>
+      <p class="result-name" id="resultName" aria-live="polite"></p>
       <div class="result-actions">
         <button class="spin-btn spin-btn--small" id="spinAgain">Крутить ещё</button>
         <button class="result-close" id="closeResult">Закрыть</button>
@@ -61,7 +72,7 @@
     </div>
     <canvas class="confetti-canvas" id="confettiCanvas" aria-hidden="true"></canvas>
   </div>
-  <div class="modal-overlay" id="modalOverlay" hidden>
+  <div class="modal-overlay" id="modalOverlay" role="dialog" aria-modal="true" aria-labelledby="modalTitle" hidden>
     <div class="modal">
       <div class="modal-header">
         <h3 class="modal-title" id="modalTitle">Добавить бонус</h3>
@@ -83,6 +94,21 @@
       </div>
     </div>
   </div>
+  <div class="confirm-overlay" id="confirmOverlay" hidden>
+    <div class="confirm-dialog" role="alertdialog" aria-modal="true" aria-labelledby="confirmTitle">
+      <p class="confirm-title" id="confirmTitle">Удалить бонус?</p>
+      <p class="confirm-text">Это действие нельзя отменить.</p>
+      <div class="confirm-actions">
+        <button class="modal-btn modal-btn--danger" id="confirmYes">Удалить</button>
+        <button class="modal-btn modal-btn--secondary" id="confirmNo">Отмена</button>
+      </div>
+    </div>
+  </div>
   <script src="script.js"></script>
+  <script>
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('/roulette-bonusov/sw.js').catch(function() {});
+  }
+  </script>
 </body>
 </html>

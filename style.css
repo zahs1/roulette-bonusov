@@ -299,10 +299,7 @@ body {
 .bonus-item-actions {
   display: flex;
   gap: 4px;
-  opacity: 0;
-  transition: opacity 0.15s;
 }
-.bonus-item:hover .bonus-item-actions { opacity: 1 }
 .bonus-item-btn {
   display: flex;
   align-items: center;
@@ -535,6 +532,52 @@ body {
   background: var(--bg-light);
   color: var(--text);
 }
+.modal-btn--danger {
+  background: oklch(0.65 0.20 25);
+  color: white;
+}
+
+/* confirm dialog */
+.confirm-overlay {
+  position: fixed;
+  inset: 0;
+  background: oklch(0 0 0 / 0.6);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 300;
+  padding: 20px;
+}
+.confirm-overlay[hidden] { display: none !important }
+.confirm-dialog {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: 24px;
+  width: 100%;
+  max-width: 400px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  animation: overlay-in 0.3s cubic-bezier(0.16,1,0.3,1) both;
+}
+.confirm-title {
+  font-family: var(--display);
+  font-weight: 700;
+  font-size: 1.05rem;
+  color: var(--text);
+}
+.confirm-text {
+  font-size: 0.9rem;
+  color: var(--text-dim);
+}
+.confirm-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 8px;
+}
 
 /* keyframes */
 @keyframes bulb-pulse {
@@ -584,7 +627,7 @@ body {
   .app-shell { grid-template-columns: 1fr }
   .wheel-section { padding: 24px 16px; min-height: 60vh }
   .rail { border-left: none; border-top: 1px solid var(--border); max-height: none; padding: 20px 16px }
-  .bonus-item-actions { opacity: 1 }
+
   .wheel-container { width: min(92vw, 480px) }
   .title { font-size: clamp(1.2rem, 5vw, 1.8rem) }
   .modal { max-width: 360px; padding: 20px }
